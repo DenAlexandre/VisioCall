@@ -88,7 +88,13 @@ public class CallHub(UserTrackingService userTracking, ILogger<CallHub> logger) 
         await Clients.Client(targetConnectionId).SendAsync(HubRoutes.ReceiveIceCandidate, candidate);
     }
 
-    public List<UserInfo> GetOnlineUsers() => userTracking.GetOnlineUsers();
+    public List<UserInfo> GetOnlineUsers()
+    {
+        var currentUserId = userTracking.GetUserId(Context.ConnectionId);
+        return userTracking.GetOnlineUsers()
+            .Where(u => u.UserId != currentUserId)
+            .ToList();
+    }
 
     public override async Task OnDisconnectedAsync(Exception? exception)
     {

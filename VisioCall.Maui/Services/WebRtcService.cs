@@ -33,6 +33,9 @@ public class WebRtcService
 
     public void AttachWebView(WebView webView, string remoteUserId)
     {
+        // Clean up any prior subscriptions to avoid double-handling
+        DetachWebView();
+
         _webView = webView;
         _remoteUserId = remoteUserId;
         _webView.Navigating += OnWebViewNavigating;
@@ -80,6 +83,7 @@ public class WebRtcService
 
     private async void OnWebViewNavigating(object? sender, WebNavigatingEventArgs e)
     {
+        Console.WriteLine($"[VisioCall] Navigating: {e.Url}");
         if (!e.Url.StartsWith("visiocall://")) return;
         e.Cancel = true;
 
@@ -116,16 +120,23 @@ public class WebRtcService
 
     private async Task EvalJsAsync(string js)
     {
-        if (_webView is null) return;
+        Console.WriteLine($"[VisioCall] EvalJsAsync: {js[..Math.Min(js.Length, 80)]}");
+        if (_webView is null)
+        {
+            Console.WriteLine("[VisioCall] EvalJsAsync: _webView is NULL!");
+            return;
+        }
 
         await MainThread.InvokeOnMainThreadAsync(async () =>
         {
             try
             {
-                await _webView.EvaluateJavaScriptAsync(js);
+                var result = await _webView.EvaluateJavaScriptAsync(js);
+                Console.WriteLine($"[VisioCall] EvalJsAsync result: {result}");
             }
             catch (Exception ex)
             {
+                Console.WriteLine($"[VisioCall] EvalJsAsync ERROR: {ex.Message}");
                 OnError?.Invoke($"JS eval error: {ex.Message}");
             }
         });

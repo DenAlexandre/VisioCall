@@ -1,3 +1,4 @@
+using VisioCall.Maui.Models;
 using VisioCall.Shared.Models;
 
 namespace VisioCall.Maui.Services;
@@ -9,7 +10,10 @@ public class CallService
 {
     private readonly SignalingService _signaling;
     private readonly AudioService _audio;
+    private readonly CallHistoryService _history;
     private CancellationTokenSource? _autoAnswerCts;
+    private DateTime _connectedAt;
+    private bool _isOutgoing;
 
     public CallState State { get; private set; }
     public string? RemoteUserId { get; private set; }
@@ -20,22 +24,25 @@ public class CallService
     public event Action? OnCallAccepted;
     public event Action? OnCallEnded;
 
-    public CallService(SignalingService signaling, AudioService audio)
+    public CallService(SignalingService signaling, AudioService audio, CallHistoryService history)
     {
         _signaling = signaling;
         _audio = audio;
+        _history = history;
 
         _signaling.OnIncomingCall += HandleIncomingCall;
         _signaling.OnCallResponseReceived += HandleCallResponse;
         _signaling.OnCallEnded += HandleCallEnded;
     }
 
-    public async Task<bool> StartCallAsync(string calleeId)
+    public async Task<bool> StartCallAsync(string calleeId, string? calleeName = null)
     {
         var response = await _signaling.InitiateCallAsync(calleeId);
         if (!response.Success) return false;
 
         RemoteUserId = calleeId;
+        RemoteUserName = calleeName ?? calleeId;
+        _isOutgoing = true;
         SetState(CallState.Calling);
         return true;
     }
@@ -75,17 +82,24 @@ public class CallService
             await _signaling.EndCallAsync(RemoteUserId);
         }
 
+        SaveToHistory();
         SetState(CallState.Ended);
         RemoteUserId = null;
+        RemoteUserName = null;
         OnCallEnded?.Invoke();
     }
 
-    public void SetConnected() => SetState(CallState.Connected);
+    public void SetConnected()
+    {
+        _connectedAt = DateTime.Now;
+        SetState(CallState.Connected);
+    }
 
     private void HandleIncomingCall(CallRequest request)
     {
         RemoteUserId = request.CallerId;
         RemoteUserName = request.CallerName;
+        _isOutgoing = false;
         SetState(CallState.Ringing);
 
         OnIncomingCall?.Invoke(request);
@@ -111,8 +125,10 @@ public class CallService
     {
         StopAutoAnswer();
         _audio.StopRinging();
+        SaveToHistory();
         SetState(CallState.Ended);
         RemoteUserId = null;
+        RemoteUserName = null;
         OnCallEnded?.Invoke();
     }
 
@@ -144,6 +160,26 @@ public class CallService
         _autoAnswerCts?.Cancel();
         _autoAnswerCts?.Dispose();
         _autoAnswerCts = null;
+    }
+
+    private void SaveToHistory()
+    {
+        if (RemoteUserId is null) return;
+
+        var duration = _connectedAt != default
+            ? (int)(DateTime.Now - _connectedAt).TotalSeconds
+            : 0;
+
+        _history.Add(new CallHistoryEntry
+        {
+            UserId = RemoteUserId,
+            DisplayName = RemoteUserName ?? RemoteUserId,
+            Timestamp = DateTime.Now,
+            IsOutgoing = _isOutgoing,
+            DurationSeconds = duration
+        });
+
+        _connectedAt = default;
     }
 
     private void SetState(CallState state)

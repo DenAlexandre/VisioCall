@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using VisioCall.Maui.Models;
 using VisioCall.Maui.Pages;
 using VisioCall.Maui.Services;
 using VisioCall.Shared.Models;
@@ -9,6 +10,7 @@ public partial class HomePageModel : ObservableObject
 {
     private readonly SignalingService _signaling;
     private readonly CallService _callService;
+    private readonly CallHistoryService _historyService;
 
     [ObservableProperty]
     private bool _isBusy;
@@ -16,12 +18,24 @@ public partial class HomePageModel : ObservableObject
     [ObservableProperty]
     private string _statusMessage = "";
 
-    public ObservableCollection<UserInfo> OnlineUsers { get; } = [];
+    public string CurrentUserName
+    {
+        get
+        {
+            var display = Preferences.Get("DisplayName", "");
+            var userId = Preferences.Get("UserId", "");
+            return string.IsNullOrWhiteSpace(display) ? userId : display;
+        }
+    }
 
-    public HomePageModel(SignalingService signaling, CallService callService)
+    public ObservableCollection<UserInfo> OnlineUsers { get; } = [];
+    public ObservableCollection<CallHistoryEntry> CallHistory { get; } = [];
+
+    public HomePageModel(SignalingService signaling, CallService callService, CallHistoryService historyService)
     {
         _signaling = signaling;
         _callService = callService;
+        _historyService = historyService;
 
         _signaling.OnUserStatusChanged += OnUserStatusChanged;
         _callService.OnIncomingCall += OnIncomingCall;
@@ -37,6 +51,8 @@ public partial class HomePageModel : ObservableObject
             OnlineUsers.Clear();
             foreach (var user in users)
                 OnlineUsers.Add(user);
+
+            LoadHistory();
         }
         catch (Exception ex)
         {
@@ -48,17 +64,35 @@ public partial class HomePageModel : ObservableObject
         }
     }
 
+    private void LoadHistory()
+    {
+        CallHistory.Clear();
+        foreach (var entry in _historyService.GetHistory())
+            CallHistory.Add(entry);
+    }
+
     [RelayCommand]
     private async Task CallUserAsync(UserInfo user)
     {
-        var success = await _callService.StartCallAsync(user.UserId);
+        await PlaceCallAsync(user.UserId, user.DisplayName);
+    }
+
+    [RelayCommand]
+    private async Task RecallAsync(CallHistoryEntry entry)
+    {
+        await PlaceCallAsync(entry.UserId, entry.DisplayName);
+    }
+
+    private async Task PlaceCallAsync(string userId, string displayName)
+    {
+        var success = await _callService.StartCallAsync(userId, displayName);
         if (success)
         {
-            await Shell.Current.GoToAsync($"{nameof(OutgoingCallPage)}?remoteUser={user.DisplayName}&remoteUserId={user.UserId}");
+            await Shell.Current.GoToAsync($"{nameof(OutgoingCallPage)}?remoteUser={displayName}&remoteUserId={userId}");
         }
         else
         {
-            StatusMessage = $"Could not call {user.DisplayName}";
+            StatusMessage = $"Could not call {displayName}";
         }
     }
 

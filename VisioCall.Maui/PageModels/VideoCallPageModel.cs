@@ -45,6 +45,8 @@ public partial class VideoCallPageModel : ObservableObject
 
     public async Task InitializeCallAsync(WebView webView)
     {
+        Console.WriteLine($"[VisioCall] InitializeCallAsync: IsCaller={IsCaller}, RemoteUserId={RemoteUserId}");
+
         _webRtc.AttachWebView(webView, RemoteUserId);
 
         _callService.SetConnected();
@@ -53,9 +55,9 @@ public partial class VideoCallPageModel : ObservableObject
         // The caller creates the offer, the callee waits for the offer
         if (IsCaller)
         {
-            // Small delay to let WebView load
-            await Task.Delay(1500);
+            Console.WriteLine("[VisioCall] Creating offer...");
             await _webRtc.CreateOfferAsync();
+            Console.WriteLine("[VisioCall] CreateOfferAsync returned");
         }
     }
 

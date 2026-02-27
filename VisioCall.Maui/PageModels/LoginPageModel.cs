@@ -27,10 +27,18 @@ public partial class LoginPageModel : ObservableObject
     {
         _signaling = signaling;
         _permissions = permissions;
+
+        // Restore last used values
+        ServerUrl = Preferences.Get("ServerUrl", ServerUrl);
+        UserId = Preferences.Get("UserId", "");
+        DisplayName = Preferences.Get("DisplayName", "");
     }
 
+    public bool HasSavedCredentials =>
+        !string.IsNullOrWhiteSpace(UserId) && !string.IsNullOrWhiteSpace(ServerUrl);
+
     [RelayCommand]
-    private async Task ConnectAsync()
+    public async Task ConnectAsync()
     {
         if (string.IsNullOrWhiteSpace(UserId) || string.IsNullOrWhiteSpace(ServerUrl))
         {
@@ -53,6 +61,11 @@ public partial class LoginPageModel : ObservableObject
             await _signaling.ConnectAsync(ServerUrl);
             var name = string.IsNullOrWhiteSpace(DisplayName) ? UserId : DisplayName;
             await _signaling.RegisterAsync(UserId, name);
+
+            // Save for next launch
+            Preferences.Set("ServerUrl", ServerUrl);
+            Preferences.Set("UserId", UserId);
+            Preferences.Set("DisplayName", DisplayName);
 
             await Shell.Current.GoToAsync(nameof(HomePage));
         }

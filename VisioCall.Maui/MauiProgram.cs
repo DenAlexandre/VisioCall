@@ -30,6 +30,7 @@ public static class MauiProgram
         // Services
         builder.Services.AddSingleton(AudioManager.Current);
         builder.Services.AddSingleton<SignalingService>();
+        builder.Services.AddSingleton<CallHistoryService>();
         builder.Services.AddSingleton<CallService>();
         builder.Services.AddSingleton<AudioService>();
         builder.Services.AddSingleton<PermissionService>();

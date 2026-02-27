@@ -5,6 +5,7 @@ namespace VisioCall.Maui.Pages;
 public partial class VideoCallPage : ContentPage
 {
     private readonly VideoCallPageModel _pageModel;
+    private bool _initialized;
 
     public VideoCallPage(VideoCallPageModel pageModel)
     {
@@ -16,17 +17,25 @@ public partial class VideoCallPage : ContentPage
     {
         base.OnAppearing();
 
+        if (_initialized) return;
+        _initialized = true;
+
         // Load WebRTC HTML into the WebView
         WebRtcView.Source = new HtmlWebViewSource
         {
             Html = await LoadWebRtcHtmlAsync()
         };
 
-        // Wait for WebView to load, then initialize the call
-        WebRtcView.Navigated += async (_, _) =>
-        {
-            await _pageModel.InitializeCallAsync(WebRtcView);
-        };
+        // Wait for the WebView to fully parse and execute the inline JS
+        await Task.Delay(1500);
+
+        await _pageModel.InitializeCallAsync(WebRtcView);
+    }
+
+    protected override void OnDisappearing()
+    {
+        base.OnDisappearing();
+        _initialized = false;
     }
 
     private static async Task<string> LoadWebRtcHtmlAsync()

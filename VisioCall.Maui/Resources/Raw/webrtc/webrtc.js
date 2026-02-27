@@ -91,6 +91,7 @@ function createPeerConnection() {
 
     pc.oniceconnectionstatechange = () => {
         const state = pc.iceConnectionState;
+        console.log('[WebRTC] ICE state: ' + state);
         if (state === 'connected' || state === 'completed') {
             statusEl.textContent = '';
         } else if (state === 'disconnected' || state === 'failed') {
@@ -101,7 +102,9 @@ function createPeerConnection() {
 
 // --- Caller: create offer ---
 async function createOffer() {
+    console.log('[WebRTC] createOffer called');
     const ready = await initMedia();
+    console.log('[WebRTC] initMedia result: ' + ready);
     if (!ready) return;
 
     createPeerConnection();
@@ -118,6 +121,7 @@ async function createOffer() {
 
 // --- Callee: receive offer then auto-answer ---
 async function receiveOffer(offer) {
+    console.log('[WebRTC] receiveOffer called');
     const ready = await initMedia();
     if (!ready) return;
 
@@ -193,3 +197,4 @@ function closeConnection() {
     remoteVideo.srcObject = null;
     localVideo.srcObject = null;
 }
+
