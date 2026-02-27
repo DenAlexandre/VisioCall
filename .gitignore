@@ -12,3 +12,5 @@
 /VisioCall.Maui/bin/Debug
 /VisioCall.Server/obj
 /VisioCall.Shared/obj/Debug/net10.0
+/VisioCall.Shared/bin/Debug/net9.0
+/VisioCall.Shared/obj
