@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="Visio/Visio.csproj" />
+  <Project Path="VisioCall.Shared/VisioCall.Shared.csproj" />
+  <Project Path="VisioCall.Server/VisioCall.Server.csproj" />
+  <Project Path="VisioCall.Maui/VisioCall.Maui.csproj" />
+</Solution>
