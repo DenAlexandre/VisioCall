@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:pm="clr-namespace:VisioCall.Maui.PageModels"
+             x:Class="VisioCall.Maui.Pages.OutgoingCallPage"
+             x:DataType="pm:OutgoingCallPageModel"
+             Title="Calling..."
+             Shell.NavBarIsVisible="False"
+             BackgroundColor="#1a1a2e">
+
+    <VerticalStackLayout Spacing="20" VerticalOptions="Center" Padding="30">
+
+        <Frame WidthRequest="100" HeightRequest="100" CornerRadius="50"
+               BackgroundColor="{StaticResource Primary}"
+               HorizontalOptions="Center" Padding="0" HasShadow="False">
+            <Label Text="{Binding RemoteUser, StringFormat='{0:0}'}"
+                   TextColor="White" FontSize="40"
+                   HorizontalOptions="Center" VerticalOptions="Center" />
+        </Frame>
+
+        <Label Text="{Binding RemoteUser}"
+               FontSize="28" FontAttributes="Bold"
+               TextColor="White"
+               HorizontalOptions="Center" />
+
+        <Label Text="{Binding StatusText}"
+               FontSize="16" TextColor="LightGray"
+               HorizontalOptions="Center" />
+
+        <ActivityIndicator IsRunning="True" Color="{StaticResource Primary}"
+                           HorizontalOptions="Center" Margin="0,20" />
+
+        <Button Text="Cancel"
+                Style="{StaticResource DangerButton}"
+                Command="{Binding CancelCommand}"
+                HorizontalOptions="Center" />
+
+    </VerticalStackLayout>
+</ContentPage>

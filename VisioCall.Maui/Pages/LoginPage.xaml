@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:pm="clr-namespace:VisioCall.Maui.PageModels"
+             x:Class="VisioCall.Maui.Pages.LoginPage"
+             x:DataType="pm:LoginPageModel"
+             Title="VisioCall - Login"
+             Shell.NavBarIsVisible="False">
+
+    <ScrollView>
+        <VerticalStackLayout Spacing="20" Padding="30" VerticalOptions="Center">
+
+            <Label Text="VisioCall"
+                   FontSize="32" FontAttributes="Bold"
+                   HorizontalOptions="Center"
+                   TextColor="{StaticResource Primary}" />
+
+            <Label Text="Video calling made simple"
+                   FontSize="16"
+                   HorizontalOptions="Center"
+                   TextColor="Gray" />
+
+            <BoxView HeightRequest="1" Color="LightGray" Margin="0,10" />
+
+            <Label Text="Server URL" FontSize="14" />
+            <Entry Text="{Binding ServerUrl}"
+                   Placeholder="http://192.168.1.100:5000"
+                   Keyboard="Url" />
+
+            <Label Text="User ID" FontSize="14" />
+            <Entry Text="{Binding UserId}"
+                   Placeholder="Enter a unique user ID" />
+
+            <Label Text="Display Name (optional)" FontSize="14" />
+            <Entry Text="{Binding DisplayName}"
+                   Placeholder="Your display name" />
+
+            <Label Text="{Binding ErrorMessage}"
+                   TextColor="Red"
+                   IsVisible="{Binding ErrorMessage, Converter={StaticResource StringToBoolConverter}}"
+                   FontSize="14" />
+
+            <Button Text="Connect"
+                    Command="{Binding ConnectCommand}"
+                    IsEnabled="{Binding IsBusy, Converter={StaticResource InvertedBoolConverter}}"
+                    Margin="0,10" />
+
+            <ActivityIndicator IsRunning="{Binding IsBusy}"
+                               IsVisible="{Binding IsBusy}"
+                               HorizontalOptions="Center" />
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

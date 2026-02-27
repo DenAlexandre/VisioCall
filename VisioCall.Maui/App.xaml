@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Application xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:local="clr-namespace:VisioCall.Maui"
+             x:Class="VisioCall.Maui.App">
+    <Application.Resources>
+        <ResourceDictionary>
+            <Color x:Key="Primary">#512BD4</Color>
+            <Color x:Key="Secondary">#DFD8F7</Color>
+            <Color x:Key="Accent">#107C10</Color>
+            <Color x:Key="Danger">#E81123</Color>
+
+            <local:StringToBoolConverter x:Key="StringToBoolConverter" />
+            <local:InvertedBoolConverter x:Key="InvertedBoolConverter" />
+            <local:BoolToColorConverter x:Key="BoolToColorConverter" />
+
+            <Style TargetType="Button">
+                <Setter Property="BackgroundColor" Value="{StaticResource Primary}" />
+                <Setter Property="TextColor" Value="White" />
+                <Setter Property="CornerRadius" Value="8" />
+                <Setter Property="Padding" Value="14,10" />
+                <Setter Property="FontSize" Value="16" />
+            </Style>
+
+            <Style x:Key="DangerButton" TargetType="Button">
+                <Setter Property="BackgroundColor" Value="{StaticResource Danger}" />
+                <Setter Property="TextColor" Value="White" />
+                <Setter Property="CornerRadius" Value="30" />
+                <Setter Property="HeightRequest" Value="60" />
+                <Setter Property="WidthRequest" Value="60" />
+            </Style>
+
+            <Style x:Key="AcceptButton" TargetType="Button">
+                <Setter Property="BackgroundColor" Value="{StaticResource Accent}" />
+                <Setter Property="TextColor" Value="White" />
+                <Setter Property="CornerRadius" Value="30" />
+                <Setter Property="HeightRequest" Value="60" />
+                <Setter Property="WidthRequest" Value="60" />
+            </Style>
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>

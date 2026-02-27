@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:pm="clr-namespace:VisioCall.Maui.PageModels"
+             x:Class="VisioCall.Maui.Pages.IncomingCallPage"
+             x:DataType="pm:IncomingCallPageModel"
+             Title="Incoming Call"
+             Shell.NavBarIsVisible="False"
+             BackgroundColor="#1a1a2e">
+
+    <VerticalStackLayout Spacing="20" VerticalOptions="Center" Padding="30">
+
+        <Frame WidthRequest="100" HeightRequest="100" CornerRadius="50"
+               BackgroundColor="{StaticResource Primary}"
+               HorizontalOptions="Center" Padding="0" HasShadow="False">
+            <Label Text="{Binding CallerName, StringFormat='{0:0}'}"
+                   TextColor="White" FontSize="40"
+                   HorizontalOptions="Center" VerticalOptions="Center" />
+        </Frame>
+
+        <Label Text="{Binding CallerName}"
+               FontSize="28" FontAttributes="Bold"
+               TextColor="White"
+               HorizontalOptions="Center" />
+
+        <Label Text="{Binding StatusText}"
+               FontSize="16" TextColor="LightGray"
+               HorizontalOptions="Center" />
+
+        <BoxView HeightRequest="40" Color="Transparent" />
+
+        <HorizontalStackLayout Spacing="60" HorizontalOptions="Center">
+            <Button Text="Reject"
+                    Style="{StaticResource DangerButton}"
+                    Command="{Binding RejectCommand}" />
+
+            <Button Text="Accept"
+                    Style="{StaticResource AcceptButton}"
+                    Command="{Binding AcceptCommand}" />
+        </HorizontalStackLayout>
+
+        <Label Text="Auto-answer after 3 rings"
+               FontSize="12" TextColor="Gray"
+               HorizontalOptions="Center" Margin="0,20,0,0" />
+
+    </VerticalStackLayout>
+</ContentPage>

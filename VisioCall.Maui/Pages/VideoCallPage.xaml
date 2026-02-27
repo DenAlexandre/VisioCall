@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:pm="clr-namespace:VisioCall.Maui.PageModels"
+             x:Class="VisioCall.Maui.Pages.VideoCallPage"
+             x:DataType="pm:VideoCallPageModel"
+             Title="Video Call"
+             Shell.NavBarIsVisible="False"
+             BackgroundColor="Black">
+
+    <Grid RowDefinitions="*,Auto">
+
+        <!-- WebView for WebRTC video -->
+        <WebView x:Name="WebRtcView"
+                 Grid.Row="0"
+                 Source="{x:Null}" />
+
+        <!-- Controls overlay -->
+        <Grid Grid.Row="1"
+              BackgroundColor="#80000000"
+              Padding="20,15"
+              ColumnDefinitions="*,*,*,*">
+
+            <VerticalStackLayout Grid.Column="0" HorizontalOptions="Center">
+                <Button Text="{Binding IsMuted, StringFormat='Mic {0}'}"
+                        Command="{Binding ToggleMuteCommand}"
+                        BackgroundColor="{Binding IsMuted, Converter={StaticResource BoolToColorConverter}}"
+                        CornerRadius="25"
+                        WidthRequest="50" HeightRequest="50" Padding="0" FontSize="12" />
+            </VerticalStackLayout>
+
+            <VerticalStackLayout Grid.Column="1" HorizontalOptions="Center">
+                <Button Text="{Binding IsCameraOff, StringFormat='Cam {0}'}"
+                        Command="{Binding ToggleCameraCommand}"
+                        BackgroundColor="{Binding IsCameraOff, Converter={StaticResource BoolToColorConverter}}"
+                        CornerRadius="25"
+                        WidthRequest="50" HeightRequest="50" Padding="0" FontSize="12" />
+            </VerticalStackLayout>
+
+            <VerticalStackLayout Grid.Column="2" HorizontalOptions="Center">
+                <Label Text="{Binding CallDuration}"
+                       TextColor="White" FontSize="16"
+                       HorizontalOptions="Center" VerticalOptions="Center" />
+                <Label Text="{Binding RemoteUserName}"
+                       TextColor="LightGray" FontSize="12"
+                       HorizontalOptions="Center" />
+            </VerticalStackLayout>
+
+            <VerticalStackLayout Grid.Column="3" HorizontalOptions="Center">
+                <Button Text="End"
+                        Command="{Binding HangUpCommand}"
+                        Style="{StaticResource DangerButton}"
+                        WidthRequest="50" HeightRequest="50" Padding="0" FontSize="12" />
+            </VerticalStackLayout>
+        </Grid>
+    </Grid>
+</ContentPage>
