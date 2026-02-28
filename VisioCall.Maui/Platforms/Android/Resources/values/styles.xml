@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Maui.MainTheme" parent="Theme.MaterialComponents.DayNight.DarkActionBar">
+        <item name="android:windowBackground">@android:color/white</item>
+    </style>
+
+    <style name="Maui.SplashTheme" parent="Maui.MainTheme">
+        <item name="android:windowBackground">@drawable/maui_splash</item>
+        <item name="android:windowNoTitle">true</item>
+    </style>
+</resources>

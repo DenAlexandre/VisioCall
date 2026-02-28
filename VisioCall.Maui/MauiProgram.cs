@@ -25,6 +25,8 @@ public static class MauiProgram
         Platforms.Android.Handlers.WebViewPermissionHandler.Configure();
 #elif IOS
         Platforms.iOS.Handlers.WebViewMediaHandler.Configure();
+#elif WINDOWS
+        Platforms.Windows.Handlers.WebViewPermissionHandler.Configure();
 #endif
 
         // Services

@@ -1,10 +1,16 @@
 // WebRTC logic — communicates with C# via visiocall:// URL scheme
 
+console.log('[WebRTC] JS loaded');
+
 let pc = null;
 let localStream = null;
 const statusEl = document.getElementById('status');
 const remoteVideo = document.getElementById('remoteVideo');
 const localVideo = document.getElementById('localVideo');
+
+console.log('[WebRTC] DOM elements: status=' + !!statusEl + ' remoteVideo=' + !!remoteVideo + ' localVideo=' + !!localVideo);
+console.log('[WebRTC] navigator.mediaDevices=' + !!navigator.mediaDevices);
+console.log('[WebRTC] chrome.webview=' + !!(window.chrome && window.chrome.webview));
 
 const config = {
     iceServers: [
@@ -20,8 +26,15 @@ let sending = false;
 function sendToNative(action, data) {
     const encoded = encodeURIComponent(JSON.stringify(data));
     const url = 'visiocall://' + action + '/' + encoded;
-    messageQueue.push(url);
-    processQueue();
+    console.log('[WebRTC] sendToNative: ' + action);
+    if (window.chrome && window.chrome.webview) {
+        // WebView2 on Windows: postMessage (iframe custom schemes don't trigger Navigating)
+        window.chrome.webview.postMessage(url);
+    } else {
+        // Android/iOS: iframe navigation
+        messageQueue.push(url);
+        processQueue();
+    }
 }
 
 function processQueue() {
@@ -41,17 +54,21 @@ function processQueue() {
 
 // --- Media ---
 async function initMedia() {
+    console.log('[WebRTC] initMedia called');
+    console.log('[WebRTC] mediaDevices.getUserMedia=' + !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia));
     try {
         localStream = await navigator.mediaDevices.getUserMedia({
             video: { facingMode: 'user', width: { ideal: 640 }, height: { ideal: 480 } },
             audio: true
         });
+        console.log('[WebRTC] getUserMedia SUCCESS, tracks: ' + localStream.getTracks().length);
         localVideo.srcObject = localStream;
         statusEl.textContent = 'Camera ready';
         return true;
     } catch (err) {
+        console.error('[WebRTC] getUserMedia FAILED: ' + err.name + ': ' + err.message);
         statusEl.textContent = 'Camera error: ' + err.message;
-        sendToNative('error', 'getUserMedia failed: ' + err.message);
+        sendToNative('error', 'getUserMedia failed: ' + err.name + ': ' + err.message);
         return false;
     }
 }

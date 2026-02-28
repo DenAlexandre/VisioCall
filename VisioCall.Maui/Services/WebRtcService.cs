@@ -6,7 +6,8 @@ namespace VisioCall.Maui.Services;
 /// <summary>
 /// Bridge between C# and WebRTC JavaScript running in a WebView.
 /// C# -> JS: EvaluateJavaScriptAsync
-/// JS -> C#: URL interception (visiocall://...)
+/// JS -> C#: URL interception (visiocall://...) on Android/iOS,
+///           postMessage on Windows/WebView2
 /// </summary>
 public class WebRtcService
 {
@@ -40,6 +41,10 @@ public class WebRtcService
         _remoteUserId = remoteUserId;
         _webView.Navigating += OnWebViewNavigating;
 
+#if WINDOWS
+        Platforms.Windows.Handlers.WebViewPermissionHandler.OnWebMessageReceived += OnWindowsWebMessage;
+#endif
+
         // Wire SignalR events to JS
         _onReceiveOffer = async offer =>
             await EvalJsAsync($"receiveOffer({JsonSerializer.Serialize(offer, JsonOptions)})");
@@ -58,6 +63,10 @@ public class WebRtcService
         if (_onReceiveOffer is not null) _signaling.OnReceiveOffer -= _onReceiveOffer;
         if (_onReceiveAnswer is not null) _signaling.OnReceiveAnswer -= _onReceiveAnswer;
         if (_onReceiveIceCandidate is not null) _signaling.OnReceiveIceCandidate -= _onReceiveIceCandidate;
+
+#if WINDOWS
+        Platforms.Windows.Handlers.WebViewPermissionHandler.OnWebMessageReceived -= OnWindowsWebMessage;
+#endif
 
         if (_webView is not null)
         {
@@ -87,9 +96,22 @@ public class WebRtcService
         if (!e.Url.StartsWith("visiocall://")) return;
         e.Cancel = true;
 
+        await ProcessVisiocallUrlAsync(e.Url);
+    }
+
+#if WINDOWS
+    private async void OnWindowsWebMessage(string url)
+    {
+        Console.WriteLine($"[VisioCall] WebMessage: {url}");
+        await ProcessVisiocallUrlAsync(url);
+    }
+#endif
+
+    private async Task ProcessVisiocallUrlAsync(string url)
+    {
         try
         {
-            var uri = new Uri(e.Url);
+            var uri = new Uri(url);
             var action = uri.Host;
             var data = Uri.UnescapeDataString(uri.AbsolutePath.TrimStart('/'));
 
